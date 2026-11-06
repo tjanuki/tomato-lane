@@ -1,0 +1,62 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    # Same engine, encoding and locale as local Docker and production.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tomato_lane
+          POSTGRES_PASSWORD: tomato_lane
+          POSTGRES_DB: tomato_lane
+          POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tomato_lane -d tomato_lane"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Create test database
+        run: >-
+          psql -h 127.0.0.1 -U tomato_lane -d tomato_lane -c
+          "CREATE DATABASE tomato_lane_test OWNER tomato_lane ENCODING 'UTF8' LOCALE 'C.UTF-8' TEMPLATE template0;"
+        env:
+          PGPASSWORD: tomato_lane
+
+      - name: Setup Application
+        run: composer setup
+
+      - name: Run CI Checks
+        run: composer ci:check
