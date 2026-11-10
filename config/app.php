@@ -69,6 +69,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | User Timezone
+    |--------------------------------------------------------------------------
+    |
+    | The application, PHP and the database all stay in UTC, and timestamps are
+    | stored as timestamptz. This timezone is used only to decide calendar
+    | boundaries the user sees, such as which cards count as "done today".
+    |
+    */
+
+    'user_timezone' => env('APP_USER_TIMEZONE', 'America/Vancouver'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

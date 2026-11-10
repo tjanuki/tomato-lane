@@ -1,5 +1,8 @@
 <?php
 
+use App\Board\DefaultBoard;
+use App\Models\Column;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +50,25 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/*
+|--------------------------------------------------------------------------
+| Board helpers
+|--------------------------------------------------------------------------
+*/
+
+/** A verified user with the default ten-column board. */
+function userWithBoard(): User
+{
+    $user = User::factory()->create();
+    app(DefaultBoard::class)->createFor($user);
+
+    return $user;
+}
+
+/** One of the user's columns, by name. */
+function boardColumn(User $user, string $name): Column
+{
+    return $user->columns()->where('name', $name)->firstOrFail();
 }
