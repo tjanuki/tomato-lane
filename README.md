@@ -39,10 +39,18 @@ To start over with an empty database:
 docker compose down -v && docker compose up -d && php artisan migrate
 ```
 
+## Time zones
+
+PHP, Laravel and Postgres all run in UTC, and timestamps are stored as
+`timestamptz`. `APP_USER_TIMEZONE` (default `America/Vancouver`) is used only
+for calendar boundaries the user sees, such as which cards the Done column
+groups under "Today".
+
 ## Checks
 
 ```bash
-composer test     # Pint, PHPStan, Pest (against Postgres)
-npm run check     # frontend format + lint
+composer test         # Pint, PHPStan, Pest (against Postgres)
+npm test              # frontend unit tests (Vitest via vite-plus)
+npm run check         # frontend format + lint
 npm run types:check
 ```
